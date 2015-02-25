@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AsciiMath for TinyMCE 4</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
+        <script>
+            tinymce.init({
+                selector: 'textarea'
+            ,   plugins: 'link'
+            ,   external_plugins: {
+					asciimath4: 'https://raw.githubusercontent.com/pedrosancao/asciimath-tinymce4/master/plugin.js'
+				}
+			,   toolbar: 'undoredo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | asciimath4'
+            });
+        </script>
+		<style>
+			.container {
+				width: 100%;
+				max-width: 1000px;
+				margin: 0 auto;
+			}
+		</style>
+    </head>
+    <body>
+		<div class="container">
+			<textarea><p>Sample formula</p>
+<p>`x = (-b +- sqrt(b^2-4ac))/(2a)`</p>
+<p>more text</p></textarea>
+		</div>
+    </body>
+</html>
