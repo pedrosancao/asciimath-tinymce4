@@ -6,28 +6,41 @@
  * @version  Alpha 1.0
  */
 
+(function(){
+
+var callbacks = [], script = document.createElement('script');
+script.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML&delayStartupUntil=configured';
+script.onload = function() {
+	MathJax.Hub.Config({
+		showMathMenu: false
+	,   showMathMenuMSIE: false
+	,   showProcessingMessages: false
+	,   messageStyle: 'none'
+	});
+	MathJax.Hub.Configured();
+	while(callbacks.length) {
+		var func = callbacks.shift();
+		if (typeof func === 'function') {
+			func();
+		}
+	}
+};
+document.getElementsByTagName('head')[0].appendChild(script);
+
 tinymce.PluginManager.add('asciimath4', function(editor) {
     var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
     , attrData = 'data-' + name, attrState = attrData + '-state'
-    , init = function(ev) {
-        var editor = ev.target
-        , win = editor.getWin()
-        , doc = editor.getDoc()
-        , script = doc.createElement('script');
-        script.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML&delayStartupUntil=configured';
-        script.onload = function() {
-            win.MathJax.Hub.Config({
-                showMathMenu: false
-            ,   showMathMenuMSIE: false
-            ,   showProcessingMessages: false
-            ,   messageStyle: 'none'
-            });
-            win.MathJax.Hub.Configured();
-        };
-        prepareNodes();
-        doc.getElementsByTagName('head')[0].appendChild(script);
-        editor.on('NodeChange', changeNode);
-    }
+    , init = function() {
+		prepareNodes();
+		renderOnEditor();
+	}
+	, renderOnEditor = function() {
+		if (window.MathJax === undefined) {
+			callbacks.push(renderOnEditor);
+		} else {
+			MathJax.Hub.Queue(['Typeset', MathJax.Hub, editor.getDoc()]);
+		}
+	}
     , prepareNodes = function() {
         var replace = '<span class="' + className + '" ' + attrData + '="$2">$1</span>';
         editor.setContent(editor.getContent().replace(/(`([^`]*?)`)/g, replace));
@@ -42,11 +55,11 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         }
     }
     , renderMath = function(nodes) {
-        var i, MathJax = editor.getWin().MathJax;
+        var i;
         for (i in nodes) {
             nodes[i].innerHTML = '`' + nodes[i].innerHTML + '`';
         }
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, editor.getDoc()]);
+        renderOnEditor();
     }
     , changeNode = function(event) {
         var a = 'active'
@@ -89,5 +102,8 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     });
 
     editor.on('init', init);
+	editor.on('NodeChange', changeNode);
 
 });
+
+})();
