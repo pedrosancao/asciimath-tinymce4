@@ -7,7 +7,8 @@
  */
 
 tinymce.PluginManager.add('asciimath4', function(editor) {
-    var name = 'asciimath4', nodeName = name + '-root-node'
+    var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
+    , attrData = 'data-' + name, attrState = attrData + '-state'
     , init = function(ev) {
         var editor = ev.target
         , win = editor.getWin()
@@ -25,18 +26,47 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         };
         prepareNodes();
         doc.getElementsByTagName('head')[0].appendChild(script);
-        editor.selection.selectorChanged('span.' + nodeName, restoreNode);
+        editor.on('NodeChange', changeNode);
     }
     , prepareNodes = function() {
-        var replace = '<span class="' + nodeName + '" data-' + name + '="$2">$1</span>';
+        var replace = '<span class="' + className + '" ' + attrData + '="$2">$1</span>';
         editor.setContent(editor.getContent().replace(/(`([^`]*?)`)/g, replace));
     }
-    , restoreNode = function(state, data) {
-        if (state && data.node) {
-            var value = editor.dom.getAttrib(data.node, 'data-' + name)
-            , node = editor.getDoc().createTextNode('`' + value + '`');
-            editor.dom.replace(node, data.node);
-            editor.selection.setCursorLocation(node, 1);
+    , enableEdit = function(node) {
+        var value = editor.dom.getAttrib(node, attrData);
+        if (value) {
+            node.innerHTML = value;
+            editor.dom.setAttrib(node, attrData, '');
+            editor.selection.setCursorLocation(node.firstChild, 0);
+            editor.nodeChanged();
+        }
+    }
+    , renderMath = function(nodes) {
+        var i, MathJax = editor.getWin().MathJax;
+        for (i in nodes) {
+            nodes[i].innerHTML = '`' + nodes[i].innerHTML + '`';
+        }
+        MathJax.Hub.Queue(['Typeset', MathJax.Hub, editor.getDoc()]);
+    }
+    , changeNode = function(event) {
+        var a = 'active'
+        , node = (function() {
+            if (editor.dom.is(event.element, selector)) {
+                return event.element;
+            }
+            return editor.dom.getParent(event.element, selector);
+        })()
+        , state = editor.dom.getAttrib(node, attrState);
+        if (state !== '1') {
+            var nodes = editor.dom.select(selector + '[' + attrState + '=1]');
+            if (nodes.length) {
+                editor.dom.setAttrib(nodes, attrState, '');
+                renderMath(nodes);
+            }
+            if (node) {
+                editor.dom.setAttrib(node, attrState, 1);
+                enableEdit(node);
+            }
         }
     }
     ;
@@ -49,7 +79,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         text: '\u03A3',
         tooltip: 'Formula',
         cmd: name + '_main'
-    ,   stateSelector: 'span.MathJax'
+    ,   stateSelector: selector
     });
 
     editor.addMenuItem(name, {
