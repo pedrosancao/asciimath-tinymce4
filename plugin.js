@@ -1,7 +1,7 @@
 /**
  * AsciiMath plugin for TinyMCE 4
  * 
- * @author   Pedro Sanção <pedro at sancao dot co>
+ * @author   Pedro Sanção <dev at sancao dot co>
  * @license  GNU GPL v 2, see LICENCE
  * @version  Alpha 1.0
  */
@@ -42,15 +42,16 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         }
     }
     , renderMath = function(nodes) {
-        var i, MathJax = editor.getWin().MathJax;
+        var i, win = editor.getWin(), MathJax = win.MathJax
+		, args = new win.Array('Typeset', MathJax.Hub, editor.getDoc());
         for (i in nodes) {
+            editor.dom.setAttrib(nodes[i], attrData, nodes[i].innerHTML);
             nodes[i].innerHTML = '`' + nodes[i].innerHTML + '`';
         }
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, editor.getDoc()]);
+        MathJax.Hub.Queue(args);
     }
     , changeNode = function(event) {
-        var a = 'active'
-        , node = (function() {
+        var node = (function() {
             if (editor.dom.is(event.element, selector)) {
                 return event.element;
             }
