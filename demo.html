@@ -10,9 +10,10 @@
                 selector: 'textarea'
             ,   plugins: 'link'
             ,   external_plugins: {
-					asciimath4: 'https://raw.githubusercontent.com/pedrosancao/asciimath-tinymce4/master/plugin.js'
+					asciimath4: 'https://rawgit.com/pedrosancao/asciimath-tinymce4/master/plugin.js'
 				}
 			,   toolbar: 'undoredo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | asciimath4'
+			,   height: 170
             });
         </script>
 		<style>
@@ -25,9 +26,13 @@
     </head>
     <body>
 		<div class="container">
+			<h1>AsciiMath plugin for TinyMCE 4</h1>
+			<h2>Demonstration - in development</h2>
 			<textarea><p>Sample formula</p>
 <p>`x = (-b +- sqrt(b^2-4ac))/(2a)`</p>
 <p>more text</p></textarea>
+			<p>Click in the formula to edit, click outside to preview. Also works with keyboard navigation.</p>
+			<p><a href="https://github.com/pedrosancao/asciimath-tinymce4">See on GitHub</a></p>
 		</div>
     </body>
 </html>
