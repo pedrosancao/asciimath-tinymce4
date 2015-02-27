@@ -4,6 +4,7 @@
         <title>AsciiMath for TinyMCE 4</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
         <script>
             tinymce.init({
@@ -15,6 +16,31 @@
 			,   toolbar: 'undoredo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | asciimath4'
 			,   height: 170
             });
+			(function($){$(function(){
+				var endpoint = 'https://api.github.com/', container = $('#to-do');
+				$.get(endpoint + 'repos/pedrosancao/asciimath-tinymce4/issues/1', function(data) {
+					data = data || {};
+					if (data.body) {
+						$.ajax({
+							url: endpoint + 'markdown'
+						,   type: 'POST'
+						,   data: JSON.stringify({
+								text: data.body
+							,   mode: 'gfm'
+							,   context: 'pedrosancao/asciimath-tinymce4'
+							})
+						,   success: function(html) {
+								container.html(html);
+							}
+						,   error: function() {
+								container.html('<pre>' + data.body + '</pre>');
+							}
+						});
+					}
+				}).fail(function() {
+					container.html('<p>Could not load the to do list from GitHub</p>');
+				});
+			});})(jQuery);
         </script>
 		<style>
 			.container {
@@ -27,12 +53,15 @@
     <body>
 		<div class="container">
 			<h1>AsciiMath plugin for TinyMCE 4</h1>
-			<h2>Demonstration - in development</h2>
+			<h2>Demonstration</h2>
 			<textarea><p>Sample formula</p>
 <p>`x = (-b +- sqrt(b^2-4ac))/(2a)`</p>
 <p>more text</p></textarea>
-			<p>Click in the formula to edit, click outside to preview. Also works with keyboard navigation.</p>
+			<p>Click in the formula to edit, click in text to preview. Also works with keyboard navigation.</p>
 			<p><a href="https://github.com/pedrosancao/asciimath-tinymce4">See on GitHub</a></p>
+			<p>Note: this plugin is on development</p>
+			<h3>To do list</h3>
+			<div id="to-do"><p>Loading...</p></div>
 		</div>
     </body>
 </html>
