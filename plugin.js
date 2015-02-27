@@ -9,6 +9,7 @@
 tinymce.PluginManager.add('asciimath4', function(editor) {
     var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
     , attrData = 'data-' + name, attrState = attrData + '-state'
+	, popup
     , init = function(ev) {
         var editor = ev.target
         , win = editor.getWin()
@@ -50,13 +51,14 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         }
         MathJax.Hub.Queue(args);
     }
+	, getRootNode = function(node) {
+		if (editor.dom.is(node, selector)) {
+			return node;
+		}
+		return editor.dom.getParent(node, selector);
+	}
     , changeNode = function(event) {
-        var node = (function() {
-            if (editor.dom.is(event.element, selector)) {
-                return event.element;
-            }
-            return editor.dom.getParent(event.element, selector);
-        })()
+        var node = getRootNode(event.element)
         , state = editor.dom.getAttrib(node, attrState);
         if (state !== '1') {
             var nodes = editor.dom.select(selector + '[' + attrState + '=1]');
@@ -70,23 +72,51 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
             }
         }
     }
+	, createNode = function(formula) {
+		editor.insertContent(editor.dom.createHTML('span', {class: className}, formula));
+	}
     ;
 
     editor.addCommand(name + '_main', function() {
-        // @todo implement
+		var node = getRootNode(editor.selection.getNode())
+		, formula;
+		if (node) {
+			formula = node.textContent || node.innerText;
+		} else {
+			// get text from selection
+		}
+		popup = editor.windowManager.open({
+			title: 'Insert formula'
+		,	body: [
+				{
+					type: 'textbox'
+				,   name: 'asciimath'
+				,   label: 'AsciiFormula'
+				,   size: 60
+				,   value: formula
+				}
+			]
+		,   onSubmit: function(e) {
+				if (node) {
+					node.innerHTML = e.data.asciimath;
+				} else {
+					createNode(e.data.asciimath);
+				}
+			}
+		});
     });
 
     editor.addButton(name, {
-        text: '\u03A3',
-        tooltip: 'Formula',
-        cmd: name + '_main'
+        text: '\u03A3'
+    ,   tooltip: 'Formula'
+    ,   cmd: name + '_main'
     ,   stateSelector: selector
     });
 
     editor.addMenuItem(name, {
-        text: 'Formula',
-        context: 'insert',
-        cmd: name + '_main'
+        text: 'Formula'
+    ,   context: 'insert'
+    ,   cmd: name + '_main'
     });
 
     editor.on('init', init);
