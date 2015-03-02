@@ -83,7 +83,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 		if (node) {
 			formula = node.textContent || node.innerText;
 		} else {
-			// get text from selection
+			formula = editor.selection.getContent({format: 'text'});
 		}
 		popup = editor.windowManager.open({
 			title: 'Insert formula'
@@ -91,7 +91,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 				{
 					type: 'textbox'
 				,   name: 'asciimath'
-				,   label: 'AsciiFormula'
+				,   label: 'AsciiMath Formula'
 				,   size: 60
 				,   value: formula
 				}
