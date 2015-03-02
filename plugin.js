@@ -75,6 +75,13 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 	, createNode = function(formula) {
 		editor.insertContent(editor.dom.createHTML('span', {class: className}, formula));
 	}
+	, getAbout = function() {
+		var settings = editor.settings, config = 'asciimath4_syntax'
+		, link = settings[config] ? editor.settings.asciimath4_syntax : 'http://asciimath.org/#syntax'
+		, text = editor.translate('Ascii syntax') + ': ';
+		text += ('<a href="%s">%s</a>').replace(/%s/g, link);
+		return '<p>' + text + '</p>';
+	}
     ;
 
     editor.addCommand(name + '_main', function() {
@@ -88,19 +95,15 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 		popup = editor.windowManager.open({
 			title: 'Insert formula'
 		,	body: [
-				{
-					type: 'textbox'
-				,   name: 'asciimath'
-				,   label: 'AsciiMath Formula'
-				,   size: 60
-				,   value: formula
-				}
+			    {type: 'label', text: 'AsciiMath Formula'}
+			,   {type: 'textbox', name: name, size: 60, value: formula}
+			,   {type: 'container', html: getAbout()}
 			]
 		,   onSubmit: function(e) {
 				if (node) {
-					node.innerHTML = e.data.asciimath;
+					node.innerHTML = e.data[name];
 				} else {
-					createNode(e.data.asciimath);
+					createNode(e.data[name]);
 				}
 			}
 		});
