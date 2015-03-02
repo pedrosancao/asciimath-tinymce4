@@ -85,8 +85,12 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     ;
 
     editor.addCommand(name + '_main', function() {
-		var node = getRootNode(editor.selection.getNode())
-		, formula;
+		var node = getRootNode(editor.selection.getNode()), formula
+		, previewStyle = 'height: 80px; border: 1px #ccc solid;'
+		, preview = editor.dom.createHTML('div', {id: name + '-preview', style: previewStyle}, '')
+		, previewFormula = function() {
+			
+		};
 		if (node) {
 			formula = node.textContent || node.innerText;
 		} else {
@@ -97,6 +101,8 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 		,	body: [
 			    {type: 'label', text: 'AsciiMath Formula'}
 			,   {type: 'textbox', name: name, size: 60, value: formula}
+			,   {type: 'label', text: 'Preview'}
+			,   {type: 'container', html: preview, layout: 'flow'}
 			,   {type: 'container', html: getAbout()}
 			]
 		,   onSubmit: function(e) {
@@ -106,6 +112,8 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 					createNode(e.data[name]);
 				}
 			}
+		,   onchange: previewFormula
+		,   onkeyup: previewFormula
 		});
     });
 
