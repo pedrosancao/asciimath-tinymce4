@@ -6,27 +6,32 @@
  * @version  Alpha 1.0
  */
 
+(function(){
+
+var loadMathjaxOn = function(win) {
+    var script = win.document.createElement('script');
+    script.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML&delayStartupUntil=configured';
+    script.onload = function() {
+        win.MathJax.Hub.Config({
+            showMathMenu: false
+        ,   showMathMenuMSIE: false
+        ,   showProcessingMessages: false
+        ,   messageStyle: 'none'
+        });
+        win.MathJax.Hub.Configured();
+    };
+    win.document.getElementsByTagName('head')[0].appendChild(script);
+};
+loadMathjaxOn(window);
+
 tinymce.PluginManager.add('asciimath4', function(editor) {
     var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
     , attrData = 'data-' + name, attrState = attrData + '-state'
-	, popup
+    , popup
     , init = function(ev) {
-        var editor = ev.target
-        , win = editor.getWin()
-        , doc = editor.getDoc()
-        , script = doc.createElement('script');
-        script.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML&delayStartupUntil=configured';
-        script.onload = function() {
-            win.MathJax.Hub.Config({
-                showMathMenu: false
-            ,   showMathMenuMSIE: false
-            ,   showProcessingMessages: false
-            ,   messageStyle: 'none'
-            });
-            win.MathJax.Hub.Configured();
-        };
+        var editor = ev.target;
         prepareNodes();
-        doc.getElementsByTagName('head')[0].appendChild(script);
+        loadMathjaxOn(editor.getWin());
         editor.on('NodeChange', changeNode);
     }
     , prepareNodes = function() {
@@ -44,19 +49,19 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     }
     , renderMath = function(nodes) {
         var i, win = editor.getWin(), MathJax = win.MathJax
-		, args = new win.Array('Typeset', MathJax.Hub, editor.getDoc());
+        , args = new win.Array('Typeset', MathJax.Hub, editor.getDoc());
         for (i in nodes) {
             editor.dom.setAttrib(nodes[i], attrData, nodes[i].innerHTML);
             nodes[i].innerHTML = '`' + nodes[i].innerHTML + '`';
         }
         MathJax.Hub.Queue(args);
     }
-	, getRootNode = function(node) {
-		if (editor.dom.is(node, selector)) {
-			return node;
-		}
-		return editor.dom.getParent(node, selector);
-	}
+    , getRootNode = function(node) {
+        if (editor.dom.is(node, selector)) {
+            return node;
+        }
+        return editor.dom.getParent(node, selector);
+    }
     , changeNode = function(event) {
         var node = getRootNode(event.element)
         , state = editor.dom.getAttrib(node, attrState);
@@ -72,49 +77,55 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
             }
         }
     }
-	, createNode = function(formula) {
-		editor.insertContent(editor.dom.createHTML('span', {class: className}, formula));
-	}
-	, getAbout = function() {
-		var settings = editor.settings, config = 'asciimath4_syntax'
-		, link = settings[config] ? editor.settings.asciimath4_syntax : 'http://asciimath.org/#syntax'
-		, text = editor.translate('Ascii syntax') + ': ';
-		text += ('<a href="%s">%s</a>').replace(/%s/g, link);
-		return '<p>' + text + '</p>';
-	}
+    , createNode = function(formula) {
+		var span = editor.dom.createHTML('span', {class: className}, formula);
+        editor.insertContent(editor.dom.createHTML('p', {}, span));
+    }
+    , getAbout = function() {
+        var settings = editor.settings, config = 'asciimath4_syntax'
+        , link = settings[config] ? editor.settings.asciimath4_syntax : 'http://asciimath.org/#syntax'
+        , text = editor.translate('Ascii syntax') + ': ';
+        text += ('<a href="%s">%s</a>').replace(/%s/g, link);
+        return '<p>' + text + '</p>';
+    }
     ;
 
     editor.addCommand(name + '_main', function() {
-		var node = getRootNode(editor.selection.getNode()), formula
-		, previewStyle = 'height: 80px; border: 1px #ccc solid;'
-		, preview = editor.dom.createHTML('div', {id: name + '-preview', style: previewStyle}, '')
-		, previewFormula = function() {
-			
+        var node = getRootNode(editor.selection.getNode()), formula
+		, id = name + '-preview', previewStyle = 'height: 80px; border: 1px #ccc solid;'
+        , preview = editor.dom.createHTML('div', {id: id, style: previewStyle}, '``')
+        , previewNode, hub = MathJax.Hub, previewFormula = function() {
+			hub.Queue(['Text', previewNode, popup.find('#' + name).value()]);
 		};
-		if (node) {
-			formula = node.textContent || node.innerText;
-		} else {
-			formula = editor.selection.getContent({format: 'text'});
-		}
-		popup = editor.windowManager.open({
-			title: 'Insert formula'
-		,	body: [
-			    {type: 'label', text: 'AsciiMath Formula'}
-			,   {type: 'textbox', name: name, size: 60, value: formula}
-			,   {type: 'label', text: 'Preview'}
-			,   {type: 'container', html: preview, layout: 'flow'}
-			,   {type: 'container', html: getAbout()}
-			]
-		,   onSubmit: function(e) {
-				if (node) {
-					node.innerHTML = e.data[name];
-				} else {
-					createNode(e.data[name]);
-				}
-			}
+        if (node) {
+            formula = node.textContent || node.innerText;
+        } else {
+            formula = editor.selection.getContent({format: 'text'});
+        }
+        popup = editor.windowManager.open({
+            title: 'Insert formula'
+        ,   body: [
+                {type: 'label', text: 'AsciiMath Formula'}
+            ,   {type: 'textbox', name: name, size: 60, value: formula}
+            ,   {type: 'label', text: 'Preview'}
+            ,   {type: 'container', html: preview, layout: 'flow'}
+            ,   {type: 'spacer'}
+            ,   {type: 'container', html: getAbout()}
+            ]
+        ,   onSubmit: function(e) {
+                if (node) {
+                    node.innerHTML = e.data[name];
+                } else {
+                    createNode(e.data[name]);
+                }
+            }
 		,   onchange: previewFormula
 		,   onkeyup: previewFormula
-		});
+        });
+        hub.Queue(['Typeset', hub, editor.dom.select('#' + id, popup.getEl())]);
+        hub.Queue(function(){
+			previewNode = hub.getAllJax(id)[0];
+		}, previewFormula);
     });
 
     editor.addButton(name, {
@@ -133,3 +144,5 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     editor.on('init', init);
 
 });
+
+})();
