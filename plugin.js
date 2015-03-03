@@ -38,10 +38,8 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     }
 	, addHighlightStyle = function() {
 		var settings = editor.settings
-		, bgSetting = name + '_highlight_bg'
-		, borderSetting = name + '_highlight_border'
-		, background = settings[bgSetting] ? settings[bgSetting] : '#ffc'
-		, border = settings[borderSetting] ? settings[borderSetting] : '#fcc'
+		, background = editor.getParam(name + '_highlight_bg', '#ffc')
+		, border = editor.getParam(name + '_highlight_border', '#fcc')
 		, style = 'background: ' + background + '; border: 1px ' + border + ' solid; padding: 5px;';
 		editor.dom.addStyle(selector +'.active{' + style + '}');
 	}
@@ -115,8 +113,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         editor.insertContent(editor.dom.createHTML('p', {}, span));
     }
     , getAbout = function() {
-        var settings = editor.settings, config = name + '_syntax'
-        , link = settings[config] ? editor.settings.asciimath4_syntax : 'http://asciimath.org/#syntax'
+        var link = editor.getParam(name + '_syntax', 'http://asciimath.org/#syntax')
         , text = editor.translate('Ascii syntax') + ': ';
         text += ('<a href="%s">%s</a>').replace(/%s/g, link);
         return '<p>' + text + '</p>';
