@@ -45,4 +45,4 @@ This plugins uses [MathJax](http://www.mathjax.org/), but it automatically downl
 
 ### License
 
-GNU General Public Licence v2, see [LICENCE](https://raw.githubusercontent.com/pedrosancao/asciimath-tinymce4/master/LICENCE)
+GNU General Public Licence v2, see [LICENSE](https://raw.githubusercontent.com/pedrosancao/asciimath-tinymce4/master/LICENSE)
