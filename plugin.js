@@ -27,12 +27,13 @@ loadMathjaxOn(window);
 tinymce.PluginManager.add('asciimath4', function(editor) {
     var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
     , attrData = 'data-' + name, attrState = attrData + '-state'
-    , init = function(ev) {
-        var editor = ev.target;
+    , init = function(e) {
+        var editor = e.target;
         prepareNodes();
         loadMathjaxOn(editor.getWin());
         editor.on('NodeChange', changeNode);
 		editor.on('GetContent', cleanup);
+		editor.on('BeforeExecCommand', removeFormat);
 		addHighlightStyle();
 		// if the preview plugin is active overwrite command
 		if (editor.getParam('plugins').match(/\bpreview\b/)) {
@@ -49,6 +50,19 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         var replace = '<span class="' + className + '" ' + attrData + '="$2">$1</span>';
         editor.setContent(editor.getContent().replace(/(`([^`]*?)`)/g, replace));
     }
+    , removeFormat = function(e) {
+		if (e.command === 'RemoveFormat') {
+			var selection = editor.selection
+			, bookmark = selection.getBookmark()
+			, range = selection.getRng(true)
+			, parent = getRootNode(range.commonAncestorContainer)
+			, nodes = parent ? [parent] : editor.dom.select(selector, range.commonAncestorContainer);
+			tinymce.each(nodes, function(node) {
+				node.outerHTML = editor.dom.getAttrib(node, attrData) || node.textContent || node.innerText;
+			});
+			selection.moveToBookmark(bookmark);
+		}
+	}
     , cleanup = function(e) {
 		var html = editor.getBody().innerHTML
 		, emptyNode = editor.dom.select('#MathJax_Hidden,#MathJax_Message,#MathJax_Font_Test')
@@ -57,7 +71,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 			editor.dom.getParents(node, '*', editor.getBody()).pop().remove();
 		});
 		tinymce.each(nodes, function(node) {
-			node.outerHTML = '`' + editor.dom.getAttrib(node, 'data-asciimath4') + '`';
+			node.outerHTML = '`' + editor.dom.getAttrib(node, attrData) + '`';
 		});
 		if (e.format === 'text') {
 			e.content = editor.getBody().innerText || editor.getBody().textContent;
@@ -121,7 +135,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         return '<p>' + text + '</p>';
     }
 	, command = function() {
-        var node = getRootNode(editor.selection.getNode()), formula
+        var popup, node = getRootNode(editor.selection.getNode()), formula
 		, id = name + '-preview', previewStyle = 'height: 80px; border: 1px #ccc solid;'
         , preview = editor.dom.createHTML('div', {id: id, style: previewStyle}, '``')
         , previewNode, hub = MathJax.Hub, previewFormula = function() {
@@ -132,7 +146,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         } else {
             formula = editor.selection.getContent({format: 'text'});
         }
-        editor.windowManager.open({
+        popup = editor.windowManager.open({
             title: 'Insert formula'
         ,   body: [
                 {type: 'label', text: 'AsciiMath Formula'}
