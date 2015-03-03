@@ -149,13 +149,15 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
                     createNode(e.data[name]);
                 }
             }
-		,   onchange: previewFormula
-		,   onkeyup: previewFormula
+		,   onPostRender: function() {
+			hub.Queue(['Typeset', hub, editor.dom.select('#' + id, this.getEl())]);
+			hub.Queue(function(){
+				previewNode = hub.getAllJax(id)[0];
+			}, previewFormula);
+		}
+		,   onChange: previewFormula
+		,   onKeyup: previewFormula
         });
-        hub.Queue(['Typeset', hub, editor.dom.select('#' + id, popup.getEl())]);
-        hub.Queue(function(){
-			previewNode = hub.getAllJax(id)[0];
-		}, previewFormula);
     });
 
     editor.addButton(name, {
