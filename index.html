@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AsciiMath for TinyMCE 4</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+    </head>
+    <body>
+		<div class="container">
+			<h1>AsciiMath plugin for TinyMCE 4</h1>
+			<p>A plugin for TinyMCE 4 which enables user to input and preview mathematical expressions with AsciiMath markup language.</p>
+			<p>There is a <a href="http://www.imathas.com/editordemo/demo.html" target="_blank">very good plugin for TinyMCE 3</a>, which supports even graphics, but unfortunately it was not updated for version 4 of the editor.</p>
+			<h2><a href="#demonstration" aria-hidden="true"></a>Demonstration</h2>
+			<p>The demonstration is avaliable <a href="./demo.html">here</a>.</p>
+			<h2><a href="#usage" aria-hidden="true"></a>Usage</h2>
+			<p>Download the <a href="https://raw.githubusercontent.com/pedrosancao/asciimath-tinymce4/master/plugin.js" target="_blank">plugin.js</a> file in the following directory structure.</p>
+			<pre>tinymce
+└── plugins
+    └── asciimath4
+        └── plugin.js</pre>
+			<p>If you are using the minified version of TinyMCE, rename it to <code>plugin.min.js</code>.</p>
+			<p>Add the plugin and the optionally the button in the TinyMCE init:</p>
+			<pre>tinymce.init({
+    selector: 'textarea'
+,   plugins: 'asciimath4'
+,   toolbar: 'asciimath4'
+});</pre>
+			<h3><a href="#configuration" aria-hidden="true"></a>Configuration</h3>
+			<p>There some parameters avaliable you can use on <code>tinymce.init</code>:</p>
+			<ul>
+				<li><code>asciimath4_syntax</code> - link for the AsciiMathML syntax reference, default: <code>'http://asciimath.org/#syntax'</code></li>
+				<li><code>asciimath4_highlight_bg</code> - background color for the highlight, default: <code>'#FFC'</code></li>
+				<li><code>asciimath4_highlight_border</code> - border color for the highlight, default: <code>'#FCC'</code></li>
+			</ul>
+			<h3><a href="#dependencies" aria-hidden="true"></a>Dependencies</h3>
+			<p>This plugins uses <a href="http://www.mathjax.org/">MathJax</a>, but it automatically downloads what is needed from CDN. So don't worry about dependencies.</p>
+			<h3><a href="#license" aria-hidden="true"></a>License</h3>
+			<p>GNU General Public Licence v2, see <a href="https://raw.githubusercontent.com/pedrosancao/asciimath-tinymce4/master/LICENCE">LICENCE</a></p>
+		</div>
+		<a href="https://github.com/pedrosancao/asciimath-tinymce4/"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+		<script>
+//			(function(s,a,n,c,ao,dot,co){s['GoogleAnalyticsObject']=ao;s[ao]=s[ao]||function(){(s[ao].q=s[ao].q||[]).push(arguments)},s[ao].l=1*new Date();dot=a.createElement(n),co=a.getElementsByTagName(n)[0];dot.async=1;dot.src=c;co.parentNode.insertBefore(dot,co)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+//			ga('create', 'UA-57279934-1', 'auto');
+//			ga('send', 'pageview');
+		</script>
+    </body>
+</html>
