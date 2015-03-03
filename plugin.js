@@ -131,7 +131,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     , getAbout = function() {
         var link = editor.getParam(name + '_syntax', 'http://asciimath.org/#syntax')
         , text = editor.translate('Ascii syntax') + ': ';
-        text += ('<a href="%s">%s</a>').replace(/%s/g, link);
+        text += ('<a href="%s" target="_blank">%s</a>').replace(/%s/g, link);
         return '<p>' + text + '</p>';
     }
 	, command = function() {
