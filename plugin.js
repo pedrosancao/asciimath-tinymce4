@@ -33,6 +33,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         prepareNodes();
         loadMathjaxOn(editor.getWin());
         editor.on('NodeChange', changeNode);
+		editor.on('GetContent', cleanup);
 		addHighlightStyle();
     }
 	, addHighlightStyle = function() {
@@ -48,6 +49,22 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         var replace = '<span class="' + className + '" ' + attrData + '="$2">$1</span>';
         editor.setContent(editor.getContent().replace(/(`([^`]*?)`)/g, replace));
     }
+    , cleanup = function(e) {
+		var html = editor.getBody().innerHTML
+		, emptyNode = editor.dom.select('#MathJax_Hidden,#MathJax_Message,#MathJax_Font_Test')
+		, nodes = editor.dom.select('span.asciimath4-root-node');
+		tinymce.each(emptyNode, function(node) {
+			editor.dom.getParents(node, '*', editor.getBody()).pop().remove();
+		});
+		tinymce.each(nodes, function(node) {
+			node.outerHTML = '`' + editor.dom.getAttrib(node, 'data-asciimath4') + '`';
+		});
+		e.content = editor.getBody().innerHTML;
+		setTimeout(function() {
+			editor.getBody().innerHTML = html;
+		}, 0);
+		return e.content;
+	}
     , enableEdit = function(node) {
         var value = editor.dom.getAttrib(node, attrData);
         if (value) {
