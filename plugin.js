@@ -59,7 +59,11 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 		tinymce.each(nodes, function(node) {
 			node.outerHTML = '`' + editor.dom.getAttrib(node, 'data-asciimath4') + '`';
 		});
-		e.content = editor.getBody().innerHTML;
+		if (e.format === 'text') {
+			e.content = editor.getBody().innerText || editor.getBody().textContent;
+		} else {
+			e.content = editor.getBody().innerHTML;
+		}
 		setTimeout(function() {
 			editor.getBody().innerHTML = html;
 		}, 0);
