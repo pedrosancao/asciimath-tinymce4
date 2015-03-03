@@ -27,7 +27,6 @@ loadMathjaxOn(window);
 tinymce.PluginManager.add('asciimath4', function(editor) {
     var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
     , attrData = 'data-' + name, attrState = attrData + '-state'
-    , popup
     , init = function(ev) {
         var editor = ev.target;
         prepareNodes();
@@ -35,10 +34,13 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         editor.on('NodeChange', changeNode);
 		editor.on('GetContent', cleanup);
 		addHighlightStyle();
+		// if the preview plugin is active overwrite command
+		if (editor.getParam('plugins').match(/\bpreview\b/)) {
+			overwritePreview();
+		}
     }
 	, addHighlightStyle = function() {
-		var settings = editor.settings
-		, background = editor.getParam(name + '_highlight_bg', '#ffc')
+		var background = editor.getParam(name + '_highlight_bg', '#ffc')
 		, border = editor.getParam(name + '_highlight_border', '#fcc')
 		, style = 'background: ' + background + '; border: 1px ' + border + ' solid; padding: 5px;';
 		editor.dom.addStyle(selector +'.active{' + style + '}');
@@ -118,9 +120,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         text += ('<a href="%s">%s</a>').replace(/%s/g, link);
         return '<p>' + text + '</p>';
     }
-    ;
-
-    editor.addCommand(name + '_main', function() {
+	, command = function() {
         var node = getRootNode(editor.selection.getNode()), formula
 		, id = name + '-preview', previewStyle = 'height: 80px; border: 1px #ccc solid;'
         , preview = editor.dom.createHTML('div', {id: id, style: previewStyle}, '``')
@@ -132,7 +132,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         } else {
             formula = editor.selection.getContent({format: 'text'});
         }
-        popup = editor.windowManager.open({
+        editor.windowManager.open({
             title: 'Insert formula'
         ,   body: [
                 {type: 'label', text: 'AsciiMath Formula'}
@@ -158,7 +158,67 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
 		,   onChange: previewFormula
 		,   onKeyup: previewFormula
         });
-    });
+    }
+	, overwritePreview = function() {
+		editor.addCommand('mcePreview', function() {
+		editor.windowManager.open({
+			title: 'Preview',
+			width : parseInt(editor.getParam("plugin_preview_width", "650"), 10),
+			height : parseInt(editor.getParam("plugin_preview_height", "500"), 10),
+			html: '<iframe src="javascript:\'\'" frameborder="0"></iframe>',
+			buttons: {
+				text: 'Close',
+				onclick: function() {
+					this.parent().parent().close();
+				}
+			},
+			onPostRender: function() {
+				var win = this.getEl('body').firstChild.contentWindow
+				, doc = win.document, previewHtml, headHtml = ''
+                , base = editor.documentBaseURI.getURI();
+                if (base) {
+                    headHtml += '<base href="' + base + '">';
+                }
+
+				tinymce.each(editor.contentCSS, function(url) {
+					headHtml += '<link type="text/css" rel="stylesheet" href="' + editor.documentBaseURI.toAbsolute(url) + '">';
+				});
+
+				var bodyId = editor.settings.body_id || 'tinymce';
+				if (bodyId.indexOf('=') > -1) {
+					bodyId = editor.getParam('body_id', '', 'hash');
+					bodyId = bodyId[editor.id] || bodyId;
+				}
+
+				var bodyClass = editor.settings.body_class || '';
+				if (bodyClass.indexOf('=') > -1) {
+					bodyClass = editor.getParam('body_class', '', 'hash');
+					bodyClass = bodyClass[editor.id] || '';
+				}
+
+				previewHtml = (
+					'<!DOCTYPE html>' +
+					'<html>' +
+					'<head>' +
+						headHtml +
+					'</head>' +
+					'<body id="' + bodyId + '" class="mce-content-body ' + bodyClass + '">' +
+						editor.getContent() +
+					'</body>' +
+					'</html>'
+				);
+
+				doc.open();
+				doc.write(previewHtml);
+				doc.close();
+				loadMathjaxOn(win);
+			}
+		});
+		});
+	}
+    ;
+
+    editor.addCommand(name + '_main', command);
 
     editor.addButton(name, {
         text: '\u03A3'
