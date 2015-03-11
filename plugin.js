@@ -24,6 +24,7 @@ var loadMathjaxOn = function(win) {
 };
 loadMathjaxOn(window);
 
+tinymce.PluginManager.requireLangPack('asciimath4');
 tinymce.PluginManager.add('asciimath4', function(editor) {
     var name = 'asciimath4', className = name + '-root-node', selector = 'span.' + className
     , attrData = 'data-' + name, attrState = attrData + '-state'
@@ -130,7 +131,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
     }
     , getAbout = function() {
         var link = editor.getParam(name + '_syntax', 'http://asciimath.org/#syntax')
-        , text = editor.translate('Ascii syntax') + ': ';
+        , text = tinymce.i18n.translate('AsciiMath syntax') + ': ';
         text += ('<a href="%s" target="_blank">%s</a>').replace(/%s/g, link);
         return '<p>' + text + '</p>';
     }
@@ -149,7 +150,7 @@ tinymce.PluginManager.add('asciimath4', function(editor) {
         popup = editor.windowManager.open({
             title: 'Insert formula'
         ,   body: [
-                {type: 'label', text: 'AsciiMath Formula'}
+                {type: 'label', text: 'AsciiMath formula'}
             ,   {type: 'textbox', name: name, size: 60, value: formula}
             ,   {type: 'label', text: 'Preview'}
             ,   {type: 'container', html: preview, layout: 'flow'}
