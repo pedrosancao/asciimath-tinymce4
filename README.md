@@ -4,6 +4,8 @@ A plugin for TinyMCE 4 which enables user to input and preview mathematical expr
 
 There is a [very good plugin for TinyMCE 3](http://www.imathas.com/editordemo/demo.html), which supports even graphics, but unfortunately it was not updated for version 4 of the editor.
 
+Please note that **this plugin is in development** (suspended D: until I have time for it).
+
 ## Demonstration
 
 The demonstration is avaliable in http://github.sancao.co/asciimath-tinymce4/demo.html.
