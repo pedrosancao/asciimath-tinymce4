@@ -8,7 +8,7 @@ Please note that **this plugin is in development** (suspended D: until I have ti
 
 ## Demonstration
 
-The demonstration is avaliable in http://github.sancao.co/asciimath-tinymce4/demo.html.
+The demonstration is avaliable in https://pedrosancao.github.io/asciimath-tinymce4/demo.html.
 
 ## Usage
 
